@@ -1,10 +1,7 @@
 package com.tom;
 
 import java.io.*;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
@@ -31,8 +28,7 @@ public class BrunelBank {
         try {
             JsonReader reader = new JsonReader(new FileReader("src/accounts.json"));
             Gson gson = new Gson();
-            Accounts accountsList = gson.fromJson(reader, Accounts.class);
-            return accountsList;
+            return gson.fromJson(reader, Accounts.class);
         } catch (FileNotFoundException e) {
             System.out.println("File not found!");
         }
@@ -65,9 +61,11 @@ public class BrunelBank {
         if (input.equals("y")) {
             Account newAccount = new Account(accountName);
             List<Account> existingAccountsList = getAccountsJson().getAccounts();
-            existingAccountsList.add(newAccount);
+            existingAccountsList.add(newAccount); // not sure that cloning the entire list then appending the new account is the best option
             Gson gson = new Gson();
-            String newAccountsList = "{\"accounts\":" + gson.toJson(existingAccountsList) + "}"; // not keen on this string messyness
+            HashMap<String, List<Account>> accountHashSet = new HashMap<String, List<Account>>();
+            accountHashSet.put("accounts", existingAccountsList);
+            String newAccountsList = gson.toJson(accountHashSet);
             try {
                 FileOutputStream outputStream = new FileOutputStream("src/accounts.json");
                 outputStream.write(newAccountsList.getBytes());
@@ -77,7 +75,10 @@ public class BrunelBank {
             }
             System.out.println("Great, we've signed you up! You're all set to deposit some money into your account.");
         } else {
-            tryLogin("Ok, enter another account name: ", scanner);
+            boolean accountExists = checkIfAccountExists(input);
+            if (!accountExists) {
+                accountExistsFalse(accountName, scanner);
+            }
         }
     }
 }
