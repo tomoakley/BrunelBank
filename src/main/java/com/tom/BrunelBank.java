@@ -52,7 +52,7 @@ public class BrunelBank {
         Accounts accountsList = getAccountsJson();
         for (Account account : accountsList.getAccounts()) {
             if (account.getAccountName().equals(accountName)) {
-                System.out.println("Logging you in to " + account.getAccountName());
+                System.out.print("Logging you in to " + account.getAccountName());
                 return true;
             }
         }
@@ -60,15 +60,14 @@ public class BrunelBank {
     }
 
     private static void accountExistsFalse(String accountName, Scanner scanner) {
-        System.out.println("Looks like that account doesn't exist. Do you want to sign up as a new user? [y/n]");
+        System.out.print("Looks like that account doesn't exist. Either enter another account name or press 'y' to sign up.");
         String input = scanner.next();
         if (input.equals("y")) {
-            System.out.println("Great, we've signed you up! You're all set to deposit some money into your account.");
             Account newAccount = new Account(accountName);
             List<Account> existingAccountsList = getAccountsJson().getAccounts();
             existingAccountsList.add(newAccount);
             Gson gson = new Gson();
-            String newAccountsList = gson.toJson(existingAccountsList);
+            String newAccountsList = "{\"accounts\":" + gson.toJson(existingAccountsList) + "}"; // not keen on this string messyness
             try {
                 FileOutputStream outputStream = new FileOutputStream("src/accounts.json");
                 outputStream.write(newAccountsList.getBytes());
@@ -76,10 +75,9 @@ public class BrunelBank {
             } catch(Exception e) {
                 System.out.println("File not found!");
             }
-        } else if (input.equals("n")) {
-            tryLogin("Ok, enter another account name: ", scanner);
+            System.out.println("Great, we've signed you up! You're all set to deposit some money into your account.");
         } else {
-            System.out.println("Please enter 'y' or 'n'");
+            tryLogin("Ok, enter another account name: ", scanner);
         }
     }
 }
