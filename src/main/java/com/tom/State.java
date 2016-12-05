@@ -6,13 +6,19 @@ package com.tom;
 public class State {
 
     static Account account;
+    static int accNumber;
 
-    public static void setAccount(Account account) {
+    public static void setAccount(int accNumber, Account account) {
         State.account = account;
+        State.accNumber = accNumber;
     }
 
     public static Account getAccount() {
         return account;
+    }
+
+    public static int getAccountNumber() {
+        return accNumber;
     }
 
 

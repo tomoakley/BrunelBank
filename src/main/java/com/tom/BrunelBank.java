@@ -27,12 +27,14 @@ public class BrunelBank {
 
     private static boolean checkIfAccountExists(String accountName) {
         List<Account> accountsList = json.getAccountsJson();
+        int i = 0;
         assert accountsList != null;
         for (Account account : accountsList) {
             if (account.getAccountName().equals(accountName)) {
-                new Session(account);
+                new Session(i, account);
                 return true;
             }
+            i++;
         }
         return false;
     }
@@ -45,17 +47,9 @@ public class BrunelBank {
             List<Account> existingAccountsList = json.getAccountsJson();
             assert existingAccountsList != null;
             existingAccountsList.add(newAccount);
-            Gson gson = new Gson();
-            String newAccountsList = gson.toJson(existingAccountsList);
-            try {
-                FileOutputStream outputStream = new FileOutputStream("src/accounts.json");
-                outputStream.write(newAccountsList.getBytes());
-                outputStream.close();
-            } catch(Exception e) {
-                System.out.println("File not found!");
-            }
+            json.writeToJson(existingAccountsList);
             System.out.println("Great, we've signed you up! You're all set to deposit some money into your account.");
-            new Session(newAccount);
+            new Session(existingAccountsList.size() - 1, newAccount);
         } else {
             boolean accountExists = checkIfAccountExists(input);
             if (!accountExists) {
