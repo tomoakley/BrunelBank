@@ -4,10 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.tom.Account;
+import com.tom.State;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -26,5 +29,20 @@ public class json {
         }
         return null;
     }
+
+    /* public static void writeToJson(HashMap<String, String> items) {
+        for (int i = 0; i <= items.size(); i++) {
+            Gson gson = new Gson();
+            List<Account> existingAccountsList = json.getAccountsJson();
+            String currentAccount = State.getAccountName();
+            try {
+                FileOutputStream outputStream = new FileOutputStream("src/accounts.json");
+                outputStream.write(newAccountsList.getBytes());
+                outputStream.close();
+            } catch(Exception e) {
+                System.out.println("File not found!");
+            }
+        }
+    } */
 
 }

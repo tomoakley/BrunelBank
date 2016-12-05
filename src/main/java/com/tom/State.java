@@ -5,14 +5,14 @@ package com.tom;
  */
 public class State {
 
-    static String name;
+    static Account account;
 
-    public static void setAccountName(String name) {
-        State.name = name;
+    public static void setAccount(Account account) {
+        State.account = account;
     }
 
-    public static String getAccountName() {
-        return name;
+    public static Account getAccount() {
+        return account;
     }
 
 

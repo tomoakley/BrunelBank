@@ -13,7 +13,7 @@ import static java.lang.Integer.parseInt;
  */
 public class Session {
 
-    String account;
+    Account account;
     String action;
     Scanner scanner;
     Map<Integer, String> menuOptions = ImmutableMap.of(
@@ -24,12 +24,12 @@ public class Session {
     );
     int chosenOption;
 
-    Session(String account) {
+    Session(Account account) {
         this.account = account;
         this.scanner = new Scanner(System.in);
         this.chosenOption = 0;
-        State.setAccountName(this.account);
-        System.out.println("Logging you in to account: " + this.account);
+        State.setAccount(this.account);
+        System.out.println("Logging you in to account: " + this.account.getAccountName());
         mainMenu();
     }
 

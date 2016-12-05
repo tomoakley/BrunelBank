@@ -1,5 +1,7 @@
 package com.tom;
 
+import java.util.Scanner;
+
 /**
  * Created by Tom on 05/12/2016.
  */
@@ -19,7 +21,12 @@ public class Action {
    }
 
     private void actionDeposit() {
-        System.out.println(State.getAccountName());
+        /* Scanner msg = new Scanner(System.in);
+        System.out.print("How much would you like to deposit?");
+        String amount = msg.next(); */
+        Account account = State.getAccount();
+        System.out.println("Account name: " + account.getAccountName());
+
     }
 
 }

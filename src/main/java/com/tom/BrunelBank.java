@@ -30,7 +30,7 @@ public class BrunelBank {
         assert accountsList != null;
         for (Account account : accountsList) {
             if (account.getAccountName().equals(accountName)) {
-                new Session(accountName);
+                new Session(account);
                 return true;
             }
         }
@@ -44,7 +44,7 @@ public class BrunelBank {
             Account newAccount = new Account(accountName);
             List<Account> existingAccountsList = json.getAccountsJson();
             assert existingAccountsList != null;
-            existingAccountsList.add(newAccount); // not sure that cloning the entire list then appending the new account is the best option
+            existingAccountsList.add(newAccount);
             Gson gson = new Gson();
             String newAccountsList = gson.toJson(existingAccountsList);
             try {
@@ -55,7 +55,7 @@ public class BrunelBank {
                 System.out.println("File not found!");
             }
             System.out.println("Great, we've signed you up! You're all set to deposit some money into your account.");
-            new Session(accountName);
+            new Session(newAccount);
         } else {
             boolean accountExists = checkIfAccountExists(input);
             if (!accountExists) {
