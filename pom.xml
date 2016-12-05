@@ -16,6 +16,12 @@
             <version>2.8.0</version>
             <scope>compile</scope>
         </dependency>
+        <!-- Guava - Google Core Libraries for Java -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>20.0</version>
+        </dependency>
     </dependencies>
 
     

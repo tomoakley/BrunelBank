@@ -6,19 +6,17 @@ package com.tom;
 public class Account {
     String id;
     String accountName;
-    int amount;
+    int balance;
 
     Account(String accountName) {
         this.accountName = accountName;
-        this.amount = 0;
+        this.balance = 0;
     }
 
     public String getAccountName() {
         return accountName;
     }
 
-    public int getAmount() {
-        return amount;
-    }
+    public int getBalance() { return balance; }
 
 }

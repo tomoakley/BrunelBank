@@ -4,19 +4,11 @@ import java.io.*;
 import java.util.*;
 
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
+import com.tom.utils.json;
 
 /**
  * Created by Tom on 14/11/2016.
  */
-
-class Accounts {
-    private List<Account> accounts;
-
-    public List<Account> getAccounts() {
-        return accounts;
-    }
-}
 
 public class BrunelBank {
     public static void main(String[] args) {
@@ -24,19 +16,8 @@ public class BrunelBank {
         tryLogin("Welcome to the Brunel Bank! Type your account name below to get started: ", scanner);
     }
 
-    private static Accounts getAccountsJson() {
-        try {
-            JsonReader reader = new JsonReader(new FileReader("src/accounts.json"));
-            Gson gson = new Gson();
-            return gson.fromJson(reader, Accounts.class);
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found!");
-        }
-        return new Accounts();
-    }
-
     private static void tryLogin(String welcome, Scanner scanner) {
-        System.out.println(welcome);
+        System.out.print(welcome);
         String accountName = scanner.next();
         boolean accountExists = checkIfAccountExists(accountName);
         if (!accountExists) {
@@ -45,10 +26,11 @@ public class BrunelBank {
     }
 
     private static boolean checkIfAccountExists(String accountName) {
-        Accounts accountsList = getAccountsJson();
-        for (Account account : accountsList.getAccounts()) {
+        List<Account> accountsList = json.getAccountsJson();
+        assert accountsList != null;
+        for (Account account : accountsList) {
             if (account.getAccountName().equals(accountName)) {
-                System.out.print("Logging you in to " + account.getAccountName());
+                new Session(accountName);
                 return true;
             }
         }
@@ -60,12 +42,11 @@ public class BrunelBank {
         String input = scanner.next();
         if (input.equals("y")) {
             Account newAccount = new Account(accountName);
-            List<Account> existingAccountsList = getAccountsJson().getAccounts();
+            List<Account> existingAccountsList = json.getAccountsJson();
+            assert existingAccountsList != null;
             existingAccountsList.add(newAccount); // not sure that cloning the entire list then appending the new account is the best option
             Gson gson = new Gson();
-            HashMap<String, List<Account>> accountHashSet = new HashMap<String, List<Account>>();
-            accountHashSet.put("accounts", existingAccountsList);
-            String newAccountsList = gson.toJson(accountHashSet);
+            String newAccountsList = gson.toJson(existingAccountsList);
             try {
                 FileOutputStream outputStream = new FileOutputStream("src/accounts.json");
                 outputStream.write(newAccountsList.getBytes());
