@@ -28,7 +28,8 @@ public class Session {
         this.account = account;
         this.scanner = new Scanner(System.in);
         this.chosenOption = 0;
-        System.out.println("Logging you in to account: " + account);
+        State.setAccountName(this.account);
+        System.out.println("Logging you in to account: " + this.account);
         mainMenu();
     }
 
@@ -51,7 +52,7 @@ public class Session {
                 isOptionValid = true;
             }
         } while (!isOptionValid);
-        System.out.println("Woo you passed!");
+        new Action("deposit");
     }
 
 

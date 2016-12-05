@@ -55,6 +55,7 @@ public class BrunelBank {
                 System.out.println("File not found!");
             }
             System.out.println("Great, we've signed you up! You're all set to deposit some money into your account.");
+            new Session(accountName);
         } else {
             boolean accountExists = checkIfAccountExists(input);
             if (!accountExists) {
