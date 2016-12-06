@@ -58,27 +58,46 @@ public class Action {
     }
 
     private void actionTransfer() {
-        System.out.print("Enter the account name you would like to send money to: ");
-        String receiverAccountName = scan.next();
-        System.out.print("Enter the amount you want to send to " + receiverAccountName + ": ");
         List<Account> accountsList = json.getAccountsJson();
-        int amountToSend = parseInt(scan.next());
-        Account senderAccount = State.getAccount();
-        Account receiverAccount = account.findAccount(receiverAccountName);
-        if (amountToSend > senderAccount.getBalance()) {
-            int newSenderBalance = senderAccount.getBalance() - amountToSend;
-            int newReceiverBalance = receiverAccount.getBalance() + amountToSend;
-            senderAccount.setBalance(newSenderBalance);
-            receiverAccount.setBalance(newReceiverBalance);
-            accountsList.remove(senderAccount.getId());
-            accountsList.remove(receiverAccount.getId());
-            accountsList.add(senderAccount);
-            accountsList.add(receiverAccount);
-            State.setAccount(senderAccount);
-            json.writeToJson(accountsList);
-            System.out.println(amountToSend + " sent to " + receiverAccountName + ". You have a new balance of " + senderAccount.getBalance() + ".");
-        }
-
+        boolean receiverAccountValid = false;
+        boolean amountToSendValid = false;
+        String receiverAccountName;
+        Account receiverAccount;
+        do {
+            System.out.print("Enter the account name you would like to send money to: ");
+            receiverAccountName = scan.next();
+            receiverAccount = account.findAccount(receiverAccountName);
+            if (receiverAccount == null) {
+                System.out.println("The account " + receiverAccountName + " doesn't exist.");
+            } else {
+                receiverAccountValid = true;
+            }
+        } while (!receiverAccountValid);
+        do {
+            System.out.print("Enter the amount you want to send to " + receiverAccountName + " (enter 0 to return to main menu): ");
+            int amountToSend = parseInt(scan.next());
+            Account senderAccount = State.getAccount();
+            if (senderAccount.getBalance() >= amountToSend && amountToSend > 0) {
+                amountToSendValid = true;
+                int newSenderBalance = senderAccount.getBalance() - amountToSend;
+                int newReceiverBalance = receiverAccount.getBalance() + amountToSend;
+                senderAccount.setBalance(newSenderBalance);
+                receiverAccount.setBalance(newReceiverBalance);
+                accountsList.remove(senderAccount.getId());
+                accountsList.remove(receiverAccount.getId());
+                accountsList.add(senderAccount);
+                accountsList.add(receiverAccount);
+                State.setAccount(senderAccount);
+                json.writeToJson(accountsList);
+                System.out.println(amountToSend + " sent to " + receiverAccount.getAccountName() + ". You have a new balance of " + senderAccount.getBalance() + ".");
+            } else if (amountToSend == 0) {
+                return;
+            } else if (amountToSend < 0) {
+                System.out.println("The amount to send must be bigger than 0.");
+            } else {
+                System.out.println("Your account does not have enough balance to send that.");
+            }
+        } while(!amountToSendValid);
     }
 
     private void actionCheckBalance() {
