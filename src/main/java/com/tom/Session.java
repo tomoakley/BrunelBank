@@ -14,7 +14,6 @@ import static java.lang.Integer.parseInt;
 public class Session {
 
     Account account;
-    int accNumber;
     Scanner scanner;
     Map<Integer, String> menuOptions = ImmutableMap.of(
             1, "Transfer Money",
@@ -24,12 +23,11 @@ public class Session {
     );
     int chosenOption;
 
-    Session(int accNumber, Account account) {
+    Session(Account account) {
         this.account = account;
-        this.accNumber = accNumber;
         this.scanner = new Scanner(System.in);
         this.chosenOption = 0;
-        State.setAccount(this.accNumber, this.account);
+        State.setAccount(this.account);
         System.out.println("Logging you in to account: " + this.account.getAccountName());
         mainMenu();
     }
@@ -53,7 +51,10 @@ public class Session {
                 isOptionValid = true;
             }
         } while (!isOptionValid);
-        new Action("deposit");
+        new Action(chosenOption);
+        if (chosenOption != 4) {
+            mainMenu();
+        }
     }
 
 

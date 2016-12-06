@@ -1,12 +1,9 @@
 package com.tom.utils;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.tom.Account;
-import com.tom.Session;
-import com.tom.State;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -26,8 +23,8 @@ public class json {
         try {
             JsonReader reader = new JsonReader(new FileReader("src/accounts.json"));
             Gson gson = new Gson();
-            Type listType = new TypeToken<List<Account>>(){}.getType();
-            return gson.fromJson(reader, listType);
+            Type accountMap = new TypeToken<List<Account>>(){}.getType();
+            return gson.fromJson(reader, accountMap);
         } catch (FileNotFoundException e) {
             System.out.println("File not found!");
         }

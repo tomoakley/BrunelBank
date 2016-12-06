@@ -3,7 +3,9 @@ package com.tom;
 import java.io.*;
 import java.util.*;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
+import com.tom.utils.account;
 import com.tom.utils.json;
 
 /**
@@ -11,35 +13,30 @@ import com.tom.utils.json;
  */
 
 public class BrunelBank {
+
+    private static Scanner scanner;
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        tryLogin("Welcome to the Brunel Bank! Type your account name below to get started: ", scanner);
+        scanner = new Scanner(System.in);
+        tryLogin("Welcome to the Brunel Bank! Type your account name below to get started: ");
     }
 
-    private static void tryLogin(String welcome, Scanner scanner) {
+    private static void tryLogin(String welcome) {
         System.out.print(welcome);
         String accountName = scanner.next();
-        boolean accountExists = checkIfAccountExists(accountName);
-        if (!accountExists) {
-            accountExistsFalse(accountName, scanner);
+        checkIfAccountExists(accountName);
+    }
+
+    private static void checkIfAccountExists(String accountName) {
+        Account targetAccount = account.findAccount(accountName);
+        if (targetAccount == null) {
+            accountExistsFalse(accountName);
+        } else {
+            new Session(targetAccount);
         }
     }
 
-    private static boolean checkIfAccountExists(String accountName) {
-        List<Account> accountsList = json.getAccountsJson();
-        int i = 0;
-        assert accountsList != null;
-        for (Account account : accountsList) {
-            if (account.getAccountName().equals(accountName)) {
-                new Session(i, account);
-                return true;
-            }
-            i++;
-        }
-        return false;
-    }
-
-    private static void accountExistsFalse(String accountName, Scanner scanner) {
+    private static void accountExistsFalse(String accountName) {
         System.out.print("Looks like that account doesn't exist. Either enter another account name or press 'y' to sign up.");
         String input = scanner.next();
         if (input.equals("y")) {
@@ -49,12 +46,9 @@ public class BrunelBank {
             existingAccountsList.add(newAccount);
             json.writeToJson(existingAccountsList);
             System.out.println("Great, we've signed you up! You're all set to deposit some money into your account.");
-            new Session(existingAccountsList.size() - 1, newAccount);
+            new Session(newAccount);
         } else {
-            boolean accountExists = checkIfAccountExists(input);
-            if (!accountExists) {
-                accountExistsFalse(accountName, scanner);
-            }
+            checkIfAccountExists(input);
         }
     }
 }
