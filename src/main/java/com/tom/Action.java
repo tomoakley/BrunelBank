@@ -1,17 +1,14 @@
 package com.tom;
 
-import com.google.common.collect.ImmutableMap;
 import com.tom.utils.account;
 import com.tom.utils.json;
-import com.tom.utils.readwrite;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.net.Socket;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 
 import static java.lang.Integer.parseInt;
 
@@ -23,11 +20,19 @@ public class Action {
     int action;
     private PrintWriter out;
     private BufferedReader in;
+    private Account account;
+    private Socket socket;
 
-    Action(int action) {
+    Action(int action, Socket socket, Account account) {
+        this.socket = socket;
         this.action = action;
-        this.out = readwrite.getWriter();
-        this.in = readwrite.getReader();
+        this.account = account;
+        try {
+            this.out = new PrintWriter(socket.getOutputStream(), true);
+            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         switch (this.action) {
             case 1:
                 actionTransfer();
@@ -53,19 +58,16 @@ public class Action {
             amount = in.readLine();
             List<Account> existingAccountsList = json.getAccountsJson();
             assert existingAccountsList != null;
-            Account currentAccount = State.getAccount();
-            int newBalance = currentAccount.getBalance() + parseInt(amount);
-            int accountId = currentAccount.getId();
-            Account storedDetails = existingAccountsList.get(accountId);
-            storedDetails.setBalance(newBalance);
+            int newBalance = account.getBalance() + parseInt(amount);
+            int accountId = account.getId();
+            account.setBalance(newBalance);
             existingAccountsList.remove(accountId);
-            existingAccountsList.add(storedDetails);
-            State.setAccount(storedDetails);
-            json.writeToJson(existingAccountsList);
-            out.println(amount + " deposited to account " + currentAccount.getAccountName() + ". Your new balance is " + State.getAccount().getBalance() + ".");
+            existingAccountsList.add(account);
+            out.println(amount + " deposited to account " + account.getAccountName() + ". Your new balance is " + account.getBalance() + ".");
         } catch (IOException e) {
             e.printStackTrace();
         }
+        new Menu(account, socket);
     }
 
     private void actionTransfer() {
@@ -74,12 +76,12 @@ public class Action {
         boolean amountToSendValid = false;
         String receiverAccountName;
         Account receiverAccount;
-        out.println("Your balance is " + State.getAccount().getBalance() + ".");
+        out.println("Your balance is " + account.getBalance() + ".");
         do {
             out.println("Enter the account name you would like to send money to: ");
             try {
                 receiverAccountName = in.readLine();
-                receiverAccount = account.findAccount(receiverAccountName);
+                receiverAccount = com.tom.utils.account.findAccount(receiverAccountName);
                 if (receiverAccount == null) {
                     out.println("The account " + receiverAccountName + " doesn't exist.");
                 } else {
@@ -96,7 +98,7 @@ public class Action {
             int amountToSend = 0;
             try {
                 amountToSend = parseInt(in.readLine());
-                Account senderAccount = State.getAccount();
+                Account senderAccount = account;
                 if (senderAccount.getBalance() >= amountToSend && amountToSend > 0) {
                     amountToSendValid = true;
                     int newSenderBalance = senderAccount.getBalance() - amountToSend;
@@ -107,7 +109,6 @@ public class Action {
                     accountsList.remove(receiverAccount.getId());
                     accountsList.add(senderAccount);
                     accountsList.add(receiverAccount);
-                    State.setAccount(senderAccount);
                     json.writeToJson(accountsList);
                     out.println(amountToSend + " sent to " + receiverAccount.getAccountName() + ". You have a new balance of " + senderAccount.getBalance() + ".");
                 } else if (amountToSend == 0) {
@@ -123,17 +124,17 @@ public class Action {
                 return;
             }
         } while(!amountToSendValid);
+        new Menu(account, socket);
     }
 
     private void actionCheckBalance() {
-        Account account = State.getAccount();
         out.println("The balance of account " + account.getAccountName() + " is " + account.getBalance());
+        new Menu(account, socket);
     }
 
     private void actionLogout() {
         out.println("Thanks for using the Brunel Bank. Goodbye!");
-        account.getLoggedInAccounts().remove(State.getAccount().getAccountName());
-        State.setAccount(null);
+        com.tom.utils.account.getLoggedInAccounts().remove(account.getAccountName());
         System.exit(-1);
     }
 

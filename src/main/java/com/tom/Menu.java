@@ -1,0 +1,69 @@
+package com.tom;
+
+import com.google.common.collect.ImmutableMap;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.Map;
+
+import static java.lang.Integer.parseInt;
+
+/**
+ * Created by Tom on 09/12/2016.
+ */
+public class Menu {
+
+    private Map<Integer, String> menuOptions = ImmutableMap.of(
+            1, "Transfer Money",
+            2, "Deposit Money",
+            3, "View Balance",
+            4, "Logout"
+    );
+    private PrintWriter out;
+    private BufferedReader in;
+    private Socket socket;
+    private Account account;
+
+    public Menu(Account account, Socket socket) {
+        this.socket = socket;
+        this.account = account;
+        try {
+            this.out = new PrintWriter(socket.getOutputStream(), true);
+            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mainMenu();
+    }
+
+    private void mainMenu() {
+        boolean isOptionValid = false;
+        int chosenOption = 0;
+        String mainMenu = "";
+        do {
+            mainMenu = "Account Menu \n";
+            for (int i = 1; i <= menuOptions.size(); ++i) {
+                mainMenu += "(" + i + ") " + menuOptions.get(i)+ "\n";
+            }
+            out.println(mainMenu);
+            out.println("Please choose an option: ");
+            try {
+                chosenOption = parseInt(in.readLine());
+                if (chosenOption > 0 && chosenOption <= menuOptions.size()) {
+                    isOptionValid = true;
+                }
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                out.println("You must choose a number between 1 and " + menuOptions.size());
+                isOptionValid = false;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } while (!isOptionValid);
+        new Action(chosenOption, socket, account);
+    }
+
+}

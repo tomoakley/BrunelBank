@@ -39,6 +39,7 @@ public class Client {
                 for (String anOutput : output) {
                     System.out.println(anOutput);
                 }
+                output.clear();
             }
             if (!in.ready()) {
                 System.out.print(fromServer);

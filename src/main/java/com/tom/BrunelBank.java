@@ -4,11 +4,8 @@ import java.io.*;
 import java.net.Socket;
 import java.util.*;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
 import com.tom.utils.account;
 import com.tom.utils.json;
-import com.tom.utils.readwrite;
 
 /**
  * Created by Tom on 14/11/2016.
@@ -23,9 +20,12 @@ public class BrunelBank extends Thread {
     public BrunelBank(Socket socket) {
         super("BrunelBank");
         this.socket = socket;
-        readwrite.setSocket(this.socket);
-        this.out = readwrite.getWriter();
-        this.in = readwrite.getReader();
+        try {
+            this.out = new PrintWriter(this.socket.getOutputStream(), true);
+            this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void run() {
@@ -49,9 +49,10 @@ public class BrunelBank extends Thread {
         if (targetAccount == null) {
             accountExistsFalse(accountName);
         } else if (loggedInAccounts.contains(accountName)) {
+            System.out.println(loggedInAccounts);
             login("That account is already logged in! Try another account: ");
         } else {
-            new Session(targetAccount);
+            new Session(targetAccount, socket);
         }
     }
 
@@ -66,7 +67,7 @@ public class BrunelBank extends Thread {
                 existingAccountsList.add(newAccount);
                 json.writeToJson(existingAccountsList);
                 out.println("Great, we've signed you up! You're all set to deposit some money into your account.");
-                new Session(newAccount);
+                new Session(newAccount, socket);
             } else {
                 checkIfAccountExists(input);
             }
