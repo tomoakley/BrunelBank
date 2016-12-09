@@ -1,7 +1,11 @@
 package com.tom;
 
 import com.google.common.collect.ImmutableMap;
+import com.tom.utils.readwrite;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -21,31 +25,37 @@ public class Session {
             3, "View Balance",
             4, "Logout"
     );
-    int chosenOption;
+    private PrintWriter out;
+    private BufferedReader in;
 
     Session(Account account) {
         this.account = account;
         this.scanner = new Scanner(System.in);
-        this.chosenOption = 0;
+        this.out = readwrite.getWriter();
+        this.in = readwrite.getReader();
         State.setAccount(this.account);
-        System.out.println("Logging you in to account: " + this.account.getAccountName());
+        this.out.println("Logging you in to account: " + this.account.getAccountName());
         mainMenu();
     }
 
     private void mainMenu() {
-        System.out.println("Account Menu");
+        String mainMenu = "Account Menu \n";
+        int chosenOption = 0;
         for (int i = 1; i <= menuOptions.size(); ++i) {
-            String option = "(" + i + ") " + menuOptions.get(i);
-            System.out.println(option);
+            mainMenu += "(" + i + ") " + menuOptions.get(i)+ "\n";
         }
         boolean isOptionValid = false;
         do {
-            System.out.print("Please choose an option: ");
+            out.println(mainMenu);
+            out.println("Please choose an option: ");
             try {
-                chosenOption = parseInt(scanner.next());
+                chosenOption = parseInt(in.readLine());
             } catch (NumberFormatException e) {
-                System.out.println("You must choose a number between 1 and " + menuOptions.size());
+                e.printStackTrace();
+                out.println("You must choose a number between 1 and " + menuOptions.size());
                 isOptionValid = false;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             if (chosenOption > 0 && chosenOption <= menuOptions.size()) {
                 isOptionValid = true;
