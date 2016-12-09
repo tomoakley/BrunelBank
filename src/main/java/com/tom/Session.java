@@ -34,6 +34,7 @@ public class Session {
         this.out = readwrite.getWriter();
         this.in = readwrite.getReader();
         State.setAccount(this.account);
+        com.tom.utils.account.addLoggedInAccount(this.account.getAccountName());
         this.out.println("Logging you in to account: " + this.account.getAccountName());
         mainMenu();
     }

@@ -36,8 +36,8 @@ public class Client {
 
         while ((fromServer = in.readLine()) != null) {
             if (fromServer.isEmpty()) {
-                for (int i = 0; i < output.size(); i++) {
-                    System.out.println(output.get(i));
+                for (String anOutput : output) {
+                    System.out.println(anOutput);
                 }
             }
             if (!in.ready()) {
@@ -50,7 +50,6 @@ public class Client {
                 output.add(fromServer);
             }
         }
-
 
         out.close();
         in.close();

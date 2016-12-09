@@ -43,15 +43,18 @@ public class BrunelBank extends Thread {
 
     private void checkIfAccountExists(String accountName) {
         Account targetAccount = account.findAccount(accountName);
+        ArrayList<String> loggedInAccounts = account.getLoggedInAccounts();
         if (targetAccount == null) {
             accountExistsFalse(accountName);
+        } else if (loggedInAccounts.contains(accountName)) {
+            out.println("That account is already logged in!");
         } else {
             new Session(targetAccount);
         }
     }
 
     private void accountExistsFalse(String accountName) {
-        out.print("Looks like that account doesn't exist. Either enter another account name or press 'y' to sign up.");
+        out.println("Looks like that account doesn't exist. Either enter another account name or press 'y' to sign up.");
         try {
             String input = in.readLine();
             if (input.equals("y")) {

@@ -111,7 +111,7 @@ public class Action {
                     json.writeToJson(accountsList);
                     out.println(amountToSend + " sent to " + receiverAccount.getAccountName() + ". You have a new balance of " + senderAccount.getBalance() + ".");
                 } else if (amountToSend == 0) {
-                    return;
+                    return; // return to main menu by ending method with empty return
                 } else if (amountToSend < 0) {
                     out.println("The amount to send must be bigger than 0.");
                 } else {
