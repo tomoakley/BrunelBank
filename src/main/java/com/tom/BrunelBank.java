@@ -30,12 +30,14 @@ public class BrunelBank extends Thread {
 
     public void run() {
         System.out.println("Brunel Bank running!");
+        login("Welcome to the Brunel Bank! Type your account name below to get started: ");
+    }
+
+    private void login(String message) {
+        out.println(message);
         try {
-            out.println("Welcome to the Brunel Bank! Type your account name below to get started: ");
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                checkIfAccountExists(inputLine);
-            }
+            String input = in.readLine();
+            checkIfAccountExists(input);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -47,7 +49,7 @@ public class BrunelBank extends Thread {
         if (targetAccount == null) {
             accountExistsFalse(accountName);
         } else if (loggedInAccounts.contains(accountName)) {
-            out.println("That account is already logged in!");
+            login("That account is already logged in! Try another account: ");
         } else {
             new Session(targetAccount);
         }

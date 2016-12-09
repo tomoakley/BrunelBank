@@ -132,7 +132,9 @@ public class Action {
 
     private void actionLogout() {
         out.println("Thanks for using the Brunel Bank. Goodbye!");
+        account.getLoggedInAccounts().remove(State.getAccount().getAccountName());
         State.setAccount(null);
+        System.exit(-1);
     }
 
 }
