@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static java.lang.Integer.parseInt;
@@ -16,12 +17,7 @@ import static java.lang.Integer.parseInt;
  */
 public class Menu {
 
-    private Map<Integer, String> menuOptions = ImmutableMap.of(
-            1, "Transfer Money",
-            2, "Deposit Money",
-            3, "View Balance",
-            4, "Logout"
-    );
+    private ArrayList<String> menuOptions = new ArrayList<>();
     private PrintWriter out;
     private BufferedReader in;
     private Socket socket;
@@ -36,6 +32,11 @@ public class Menu {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        this.menuOptions.add("Transfer Money");
+        this.menuOptions.add("Deposit Money");
+        this.menuOptions.add("Withdraw Money");
+        this.menuOptions.add("View Balance");
+        this.menuOptions.add("Logout");
         mainMenu();
     }
 
@@ -45,19 +46,19 @@ public class Menu {
         String mainMenu = "";
         do {
             mainMenu = "Account Menu \n";
-            for (int i = 1; i <= menuOptions.size(); ++i) {
-                mainMenu += "(" + i + ") " + menuOptions.get(i)+ "\n";
+            for (int i = 0; i < menuOptions.size(); ++i) {
+                mainMenu += "(" + i + ") " + menuOptions.get(i) + "\n";
             }
             out.println(mainMenu);
             out.println("Please choose an option: ");
             try {
                 chosenOption = parseInt(in.readLine());
-                if (chosenOption > 0 && chosenOption <= menuOptions.size()) {
+                if (chosenOption <= menuOptions.size()) {
                     isOptionValid = true;
                 }
             } catch (NumberFormatException e) {
                 e.printStackTrace();
-                out.println("You must choose a number between 1 and " + menuOptions.size());
+                out.println("You must choose a number between 0 and " + menuOptions.size());
                 isOptionValid = false;
             } catch (IOException e) {
                 e.printStackTrace();

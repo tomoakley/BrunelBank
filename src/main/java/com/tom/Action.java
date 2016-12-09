@@ -34,11 +34,14 @@ public class Action {
             e.printStackTrace();
         }
         switch (this.action) {
-            case 1:
+            case 0:
                 actionTransfer();
                 break;
-            case 2:
+            case 1:
                 actionDeposit();
+                break;
+            case 2:
+                actionWithdraw();
                 break;
             case 3:
                 actionCheckBalance();
@@ -61,9 +64,27 @@ public class Action {
             int newBalance = account.getBalance() + parseInt(amount);
             int accountId = account.getId();
             account.setBalance(newBalance);
-            existingAccountsList.remove(accountId);
-            existingAccountsList.add(account);
-            out.println(amount + " deposited to account " + account.getAccountName() + ". Your new balance is " + account.getBalance() + ".");
+            existingAccountsList.get(accountId).setBalance(newBalance);
+            json.writeToJson(existingAccountsList);
+            out.println(amount + " deposited to account " + account.getAccountName() + ". Your new balance is " + existingAccountsList.get(accountId).getBalance() + ".");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        new Menu(account, socket);
+    }
+
+    private void actionWithdraw() { // could be combined with actionDeposit
+        out.println("How much would you like to withdraw? ");
+        int amount;
+        try {
+            amount = parseInt(in.readLine());
+            List<Account> existingAccountsList = json.getAccountsJson();
+            assert existingAccountsList != null;
+            int newBalance = account.getBalance() - amount;
+            int accountId = account.getId();
+            account.setBalance(newBalance);
+            existingAccountsList.get(accountId).setBalance(newBalance);
+            out.println(amount + " withdrawn from account " + account.getAccountName() + ". Your new balance is " + account.getBalance());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -105,14 +126,12 @@ public class Action {
                     int newReceiverBalance = receiverAccount.getBalance() + amountToSend;
                     senderAccount.setBalance(newSenderBalance);
                     receiverAccount.setBalance(newReceiverBalance);
-                    accountsList.remove(senderAccount.getId());
-                    accountsList.remove(receiverAccount.getId());
-                    accountsList.add(senderAccount);
-                    accountsList.add(receiverAccount);
+                    accountsList.get(senderAccount.getId()).setBalance(newSenderBalance);
+                    accountsList.get(receiverAccount.getId()).setBalance(newReceiverBalance);
                     json.writeToJson(accountsList);
                     out.println(amountToSend + " sent to " + receiverAccount.getAccountName() + ". You have a new balance of " + senderAccount.getBalance() + ".");
                 } else if (amountToSend == 0) {
-                    return; // return to main menu by ending method with empty return
+                    new Menu(account, socket);
                 } else if (amountToSend < 0) {
                     out.println("The amount to send must be bigger than 0.");
                 } else {
@@ -135,7 +154,7 @@ public class Action {
     private void actionLogout() {
         out.println("Thanks for using the Brunel Bank. Goodbye!");
         com.tom.utils.account.getLoggedInAccounts().remove(account.getAccountName());
-        System.exit(-1);
+        System.exit(1);
     }
 
 }

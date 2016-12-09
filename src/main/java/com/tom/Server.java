@@ -12,19 +12,12 @@ public class Server {
 
     public static void main(String[] args) throws IOException {
 
-        /* InetAddress computerAddress = null;
-        try {
-            computerAddress = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            System.out.println(e);
-        } */
-
         ServerSocket serverSocket = null;
         boolean listening = true;
         int serverPort = 4444;
         try {
             serverSocket = new ServerSocket(serverPort);
-            System.out.println("Server started");
+            System.out.println("Server started on http://localhost:" + serverPort);
         } catch (IOException e) {
             System.err.println("Could not listen on port: " + serverPort);
             System.exit(-1);
