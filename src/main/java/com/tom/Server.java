@@ -16,6 +16,7 @@ public class Server {
     public static void main(String[] args) throws IOException {
 
         ServerSocket serverSocket = null;
+        final List<Account> accountsList = json.getAccountsJson();
         boolean listening = true;
         int serverPort = 4444;
         try {
@@ -26,11 +27,18 @@ public class Server {
             System.exit(-1);
         }
 
-        List<Account> accountsList = json.getAccountsJson();
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                json.writeToJson(accountsList); // write the accountsList held in memory to the JSON store
+                System.out.println("Server closing!");
+            }
+        }));
 
         while (listening) {
             new BrunelBank(accountsList, serverSocket.accept()).start();
         }
+
         serverSocket.close();
     }
 

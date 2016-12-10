@@ -38,8 +38,8 @@ public class Account {
 
     public synchronized void setBalance(int balance) throws InterruptedException {
         Thread thisThread = Thread.currentThread();
-        while (this.locked != thisThread.getId()) {
-            System.out.println(getAccountName() + " is locked by " + this.locked);
+        while (this.locked != thisThread.getId() && this.locked != -1) {
+            System.out.println("Can't edit, " + getAccountName() + " is locked by " + this.locked);
             wait();
         }
         this.balance = balance;

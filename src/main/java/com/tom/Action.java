@@ -66,7 +66,6 @@ public class Action {
             int accountId = account.getId();
             account.setBalance(newBalance);
             accounts.get(accountId).setBalance(newBalance);
-            json.writeToJson(accounts);
             out.println(amount + " deposited to account " + account.getAccountName() + ". Your new balance is " + accounts.get(accountId).getBalance() + ".");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -133,7 +132,6 @@ public class Action {
                         receiverAccount.setBalance(newReceiverBalance);
                         senderAccount.releaseLock();
                         receiverAccount.releaseLock();
-                        json.writeToJson(accounts);
                         out.println(amountToSend + " sent to " + receiverAccount.getAccountName() + ". You have a new balance of " + senderAccount.getBalance() + ".");
                     } catch (InterruptedException e) {
                         e.printStackTrace();
