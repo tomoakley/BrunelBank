@@ -16,10 +16,12 @@ public class BrunelBank extends Thread {
     private Socket socket = null;
     private PrintWriter out;
     private BufferedReader in;
+    private List<Account> accounts;
 
-    public BrunelBank(Socket socket) {
+    public BrunelBank(List<Account> accounts, Socket socket) {
         super("BrunelBank");
         this.socket = socket;
+        this.accounts = accounts;
         try {
             this.out = new PrintWriter(this.socket.getOutputStream(), true);
             this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
@@ -52,7 +54,7 @@ public class BrunelBank extends Thread {
             System.out.println(loggedInAccounts);
             login("That account is already logged in! Try another account: ");
         } else {
-            new Session(targetAccount, socket);
+            new Session(targetAccount, accounts, socket);
         }
     }
 
@@ -67,7 +69,7 @@ public class BrunelBank extends Thread {
                 existingAccountsList.add(newAccount);
                 json.writeToJson(existingAccountsList);
                 out.println("Great, we've signed you up! You're all set to deposit some money into your account.");
-                new Session(newAccount, socket);
+                new Session(newAccount, accounts, socket);
             } else {
                 checkIfAccountExists(input);
             }

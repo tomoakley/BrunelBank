@@ -1,9 +1,12 @@
 package com.tom;
 
+import com.tom.utils.json;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
+import java.util.List;
 
 /**
  * Created by Tom on 06/12/2016.
@@ -23,8 +26,10 @@ public class Server {
             System.exit(-1);
         }
 
+        List<Account> accountsList = json.getAccountsJson();
+
         while (listening) {
-            new BrunelBank(serverSocket.accept()).start();
+            new BrunelBank(accountsList, serverSocket.accept()).start();
         }
         serverSocket.close();
     }

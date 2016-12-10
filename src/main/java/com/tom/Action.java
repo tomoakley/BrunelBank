@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.List;
+import java.util.Objects;
 
 import static java.lang.Integer.parseInt;
 
@@ -21,12 +22,14 @@ public class Action {
     private PrintWriter out;
     private BufferedReader in;
     private Account account;
+    private List<Account> accounts;
     private Socket socket;
 
-    Action(int action, Socket socket, Account account) {
+    Action(int action, Socket socket, Account account, List<Account> accounts) {
         this.socket = socket;
         this.action = action;
         this.account = account;
+        this.accounts = accounts;
         try {
             this.out = new PrintWriter(socket.getOutputStream(), true);
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -59,18 +62,16 @@ public class Action {
         String amount;
         try {
             amount = in.readLine();
-            List<Account> existingAccountsList = json.getAccountsJson();
-            assert existingAccountsList != null;
             int newBalance = account.getBalance() + parseInt(amount);
             int accountId = account.getId();
             account.setBalance(newBalance);
-            existingAccountsList.get(accountId).setBalance(newBalance);
-            json.writeToJson(existingAccountsList);
-            out.println(amount + " deposited to account " + account.getAccountName() + ". Your new balance is " + existingAccountsList.get(accountId).getBalance() + ".");
-        } catch (IOException e) {
+            accounts.get(accountId).setBalance(newBalance);
+            json.writeToJson(accounts);
+            out.println(amount + " deposited to account " + account.getAccountName() + ". Your new balance is " + accounts.get(accountId).getBalance() + ".");
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        new Menu(account, socket);
+        new Menu(account, accounts, socket);
     }
 
     private void actionWithdraw() { // could be combined with actionDeposit
@@ -78,23 +79,21 @@ public class Action {
         int amount;
         try {
             amount = parseInt(in.readLine());
-            List<Account> existingAccountsList = json.getAccountsJson();
-            assert existingAccountsList != null;
             int newBalance = account.getBalance() - amount;
             int accountId = account.getId();
             account.setBalance(newBalance);
-            existingAccountsList.get(accountId).setBalance(newBalance);
+            accounts.get(accountId).setBalance(newBalance);
             out.println(amount + " withdrawn from account " + account.getAccountName() + ". Your new balance is " + account.getBalance());
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        new Menu(account, socket);
+        new Menu(account, accounts, socket);
     }
 
     private void actionTransfer() {
-        List<Account> accountsList = json.getAccountsJson();
         boolean receiverAccountValid = false;
         boolean amountToSendValid = false;
+        Account senderAccount = account;
         String receiverAccountName;
         Account receiverAccount;
         out.println("Your balance is " + account.getBalance() + ".");
@@ -105,6 +104,8 @@ public class Action {
                 receiverAccount = com.tom.utils.account.findAccount(receiverAccountName);
                 if (receiverAccount == null) {
                     out.println("The account " + receiverAccountName + " doesn't exist.");
+                } else if (Objects.equals(receiverAccount.getAccountName(), senderAccount.getAccountName())) {
+                    out.println("You cannot send money to yourself");
                 } else {
                     receiverAccountValid = true;
                 }
@@ -119,19 +120,26 @@ public class Action {
             int amountToSend = 0;
             try {
                 amountToSend = parseInt(in.readLine());
-                Account senderAccount = account;
                 if (senderAccount.getBalance() >= amountToSend && amountToSend > 0) {
                     amountToSendValid = true;
-                    int newSenderBalance = senderAccount.getBalance() - amountToSend;
-                    int newReceiverBalance = receiverAccount.getBalance() + amountToSend;
-                    senderAccount.setBalance(newSenderBalance);
-                    receiverAccount.setBalance(newReceiverBalance);
-                    accountsList.get(senderAccount.getId()).setBalance(newSenderBalance);
-                    accountsList.get(receiverAccount.getId()).setBalance(newReceiverBalance);
-                    json.writeToJson(accountsList);
-                    out.println(amountToSend + " sent to " + receiverAccount.getAccountName() + ". You have a new balance of " + senderAccount.getBalance() + ".");
+                    try {
+                        senderAccount = accounts.get(senderAccount.getId());
+                        receiverAccount = accounts.get(receiverAccount.getId());
+                        senderAccount.setLock(Thread.currentThread());
+                        receiverAccount.setLock(Thread.currentThread());
+                        int newSenderBalance = senderAccount.getBalance() - amountToSend;
+                        int newReceiverBalance = receiverAccount.getBalance() + amountToSend;
+                        senderAccount.setBalance(newSenderBalance);
+                        receiverAccount.setBalance(newReceiverBalance);
+                        senderAccount.releaseLock();
+                        receiverAccount.releaseLock();
+                        json.writeToJson(accounts);
+                        out.println(amountToSend + " sent to " + receiverAccount.getAccountName() + ". You have a new balance of " + senderAccount.getBalance() + ".");
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 } else if (amountToSend == 0) {
-                    new Menu(account, socket);
+                    new Menu(account, accounts, socket);
                 } else if (amountToSend < 0) {
                     out.println("The amount to send must be bigger than 0.");
                 } else {
@@ -143,12 +151,12 @@ public class Action {
                 return;
             }
         } while(!amountToSendValid);
-        new Menu(account, socket);
+        new Menu(account, accounts, socket);
     }
 
     private void actionCheckBalance() {
         out.println("The balance of account " + account.getAccountName() + " is " + account.getBalance());
-        new Menu(account, socket);
+        new Menu(account, accounts, socket);
     }
 
     private void actionLogout() {
