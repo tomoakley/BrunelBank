@@ -64,10 +64,7 @@ public class BrunelBank extends Thread {
             String input = in.readLine();
             if (input.equals("y")) {
                 Account newAccount = new Account(accountName);
-                List<Account> existingAccountsList = json.getAccountsJson();
-                assert existingAccountsList != null;
-                existingAccountsList.add(newAccount);
-                json.writeToJson(existingAccountsList);
+                accounts.add(newAccount);
                 out.println("Great, we've signed you up! You're all set to deposit some money into your account.");
                 new Session(newAccount, accounts, socket);
             } else {
