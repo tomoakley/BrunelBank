@@ -1,14 +1,10 @@
 package com.tom;
 
-import com.tom.utils.account;
-import com.tom.utils.json;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.List;
 import java.util.Objects;
 
 import static java.lang.Integer.parseInt;
@@ -22,14 +18,12 @@ public class Action {
     private PrintWriter out;
     private BufferedReader in;
     private Account account;
-    private List<Account> accounts;
     private Socket socket;
 
-    Action(int action, Socket socket, Account account, List<Account> accounts) {
+    Action(int action, Socket socket, Account account) {
         this.socket = socket;
         this.action = action;
         this.account = account;
-        this.accounts = accounts;
         try {
             this.out = new PrintWriter(socket.getOutputStream(), true);
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -63,14 +57,12 @@ public class Action {
         try {
             amount = in.readLine();
             int newBalance = account.getBalance() + parseInt(amount);
-            int accountId = account.getId();
             account.setBalance(newBalance);
-            accounts.get(accountId).setBalance(newBalance);
-            out.println(amount + " deposited to account " + account.getAccountName() + ". Your new balance is " + accounts.get(accountId).getBalance() + ".");
+            out.println(amount + " deposited to account " + account.getAccountName() + ". Your new balance is " + account.getBalance() + ".");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        new Menu(account, accounts, socket);
+        new Menu(account, socket);
     }
 
     private void actionWithdraw() { // could be combined with actionDeposit
@@ -79,14 +71,12 @@ public class Action {
         try {
             amount = parseInt(in.readLine());
             int newBalance = account.getBalance() - amount;
-            int accountId = account.getId();
             account.setBalance(newBalance);
-            accounts.get(accountId).setBalance(newBalance);
             out.println(amount + " withdrawn from account " + account.getAccountName() + ". Your new balance is " + account.getBalance());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        new Menu(account, accounts, socket);
+        new Menu(account, socket);
     }
 
     private void actionTransfer() {
@@ -100,7 +90,7 @@ public class Action {
             out.println("Enter the account name you would like to send money to: ");
             try {
                 receiverAccountName = in.readLine();
-                receiverAccount = com.tom.utils.account.findAccount(receiverAccountName);
+                receiverAccount = Database.getAccount(receiverAccountName);
                 if (receiverAccount == null) {
                     out.println("The account " + receiverAccountName + " doesn't exist.");
                 } else if (Objects.equals(receiverAccount.getAccountName(), senderAccount.getAccountName())) {
@@ -122,12 +112,12 @@ public class Action {
                 if (senderAccount.getBalance() >= amountToSend && amountToSend > 0) {
                     amountToSendValid = true;
                     try {
-                        senderAccount = accounts.get(senderAccount.getId());
-                        receiverAccount = accounts.get(receiverAccount.getId());
-                        senderAccount.setLock(Thread.currentThread());
-                        receiverAccount.setLock(Thread.currentThread());
+
                         int newSenderBalance = senderAccount.getBalance() - amountToSend;
                         int newReceiverBalance = receiverAccount.getBalance() + amountToSend;
+                        Thread thisThread = Thread.currentThread();
+                        senderAccount.setLock(thisThread);
+                        receiverAccount.setLock(thisThread);
                         senderAccount.setBalance(newSenderBalance);
                         receiverAccount.setBalance(newReceiverBalance);
                         senderAccount.releaseLock();
@@ -137,9 +127,9 @@ public class Action {
                         e.printStackTrace();
                     }
                 } else if (amountToSend == 0) {
-                    new Menu(account, accounts, socket);
+                    new Menu(account, socket);
                 } else if (amountToSend < 0) {
-                    out.println("The amount to send must be bigger than 0.");
+                    out.println("The amount to send must be bigger than 0."); // TODO these messages don't show up in the client console until the do loop has completed
                 } else {
                     out.println("Your account does not have enough balance to send that.");
                 }
@@ -149,12 +139,12 @@ public class Action {
                 return;
             }
         } while(!amountToSendValid);
-        new Menu(account, accounts, socket);
+        new Menu(account, socket); // TODO probably don't want to be sending account back to menu as it hasn't yet been updated
     }
 
     private void actionCheckBalance() {
         out.println("The balance of account " + account.getAccountName() + " is " + account.getBalance());
-        new Menu(account, accounts, socket);
+        new Menu(account, socket);
     }
 
     private void actionLogout() {

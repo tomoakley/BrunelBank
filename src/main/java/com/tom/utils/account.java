@@ -13,21 +13,6 @@ public class account {
 
     static ArrayList<String> loggedInAccounts = new ArrayList<>();
 
-    public static Account findAccount(String accountName) {
-        List<Account> accountList = json.getAccountsJson();
-        Account account;
-        Account target = null;
-        assert accountList != null;
-        for (int i = 0; i < accountList.size(); i++) {
-            account = accountList.get(i);
-            if (account.getAccountName().equals(accountName)) {
-                target = account;
-                target.setId(i);
-            }
-        }
-        return target;
-    }
-
     public static void addLoggedInAccount(String accountName) {
         account.loggedInAccounts.add(accountName);
     }
@@ -35,4 +20,5 @@ public class account {
     public static ArrayList<String> getLoggedInAccounts() {
         return account.loggedInAccounts;
     }
+
 }

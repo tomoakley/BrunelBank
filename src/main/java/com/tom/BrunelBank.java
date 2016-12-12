@@ -5,7 +5,6 @@ import java.net.Socket;
 import java.util.*;
 
 import com.tom.utils.account;
-import com.tom.utils.json;
 
 /**
  * Created by Tom on 14/11/2016.
@@ -16,12 +15,10 @@ public class BrunelBank extends Thread {
     private Socket socket = null;
     private PrintWriter out;
     private BufferedReader in;
-    private List<Account> accounts;
 
-    public BrunelBank(List<Account> accounts, Socket socket) {
+    public BrunelBank(Socket socket) {
         super("BrunelBank");
         this.socket = socket;
-        this.accounts = accounts;
         try {
             this.out = new PrintWriter(this.socket.getOutputStream(), true);
             this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
@@ -46,7 +43,7 @@ public class BrunelBank extends Thread {
     }
 
     private void checkIfAccountExists(String accountName) {
-        Account targetAccount = account.findAccount(accountName);
+        Account targetAccount = Database.getAccount(accountName);
         ArrayList<String> loggedInAccounts = account.getLoggedInAccounts();
         if (targetAccount == null) {
             accountExistsFalse(accountName);
@@ -54,7 +51,7 @@ public class BrunelBank extends Thread {
             System.out.println(loggedInAccounts);
             login("That account is already logged in! Try another account: ");
         } else {
-            new Session(targetAccount, accounts, socket);
+            new Session(targetAccount, socket);
         }
     }
 
@@ -64,9 +61,8 @@ public class BrunelBank extends Thread {
             String input = in.readLine();
             if (input.equals("y")) {
                 Account newAccount = new Account(accountName);
-                accounts.add(newAccount);
                 out.println("Great, we've signed you up! You're all set to deposit some money into your account.");
-                new Session(newAccount, accounts, socket);
+                new Session(newAccount, socket);
             } else {
                 checkIfAccountExists(input);
             }

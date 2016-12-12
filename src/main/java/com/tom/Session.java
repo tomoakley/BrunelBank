@@ -20,11 +20,9 @@ public class Session {
     private Account account;
     private PrintWriter out;
     private BufferedReader in;
-    private List<Account> accounts;
 
-    Session(Account account, List<Account> accounts, Socket socket) {
+    Session(Account account, Socket socket) {
         this.account = account;
-        this.accounts = accounts;
         try {
             this.out = new PrintWriter(socket.getOutputStream(), true);
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -33,7 +31,7 @@ public class Session {
         }
         com.tom.utils.account.addLoggedInAccount(this.account.getAccountName());
         this.out.println("Logging you in to account: " + this.account.getAccountName());
-        new Menu(account, accounts, socket);
+        new Menu(account, socket);
     }
 
 }

@@ -1,12 +1,7 @@
 package com.tom;
 
-import com.tom.utils.json;
-
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.UnknownHostException;
-import java.util.List;
 
 /**
  * Created by Tom on 06/12/2016.
@@ -16,7 +11,6 @@ public class Server {
     public static void main(String[] args) throws IOException {
 
         ServerSocket serverSocket = null;
-        final List<Account> accountsList = json.getAccountsJson();
         boolean listening = true;
         int serverPort = 4444;
         try {
@@ -27,16 +21,10 @@ public class Server {
             System.exit(-1);
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                json.writeToJson(accountsList); // write the accountsList held in memory to the JSON store
-                System.out.println("Server closing!");
-            }
-        }));
+        Database database = new Database();
 
         while (listening) {
-            new BrunelBank(accountsList, serverSocket.accept()).start();
+            new BrunelBank(serverSocket.accept()).start();
         }
 
         serverSocket.close();

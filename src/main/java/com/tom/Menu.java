@@ -23,12 +23,10 @@ public class Menu {
     private BufferedReader in;
     private Socket socket;
     private Account account;
-    private List<Account> accounts;
 
-    public Menu(Account account, List<Account> accounts, Socket socket) {
+    public Menu(Account account, Socket socket) {
         this.socket = socket;
         this.account = account;
-        this.accounts = accounts;
         try {
             this.out = new PrintWriter(socket.getOutputStream(), true);
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -67,7 +65,7 @@ public class Menu {
                 e.printStackTrace();
             }
         } while (!isOptionValid);
-        new Action(chosenOption, socket, account, accounts);
+        new Action(chosenOption, socket, account);
     }
 
 }
