@@ -7,7 +7,7 @@ public class Account {
 
     private int id;
     private String accountName;
-    private int balance;
+    private double balance;
     private long locked = 0;
 
     Account(String accountName) {
@@ -32,9 +32,9 @@ public class Account {
         return accountName;
     }
 
-    public int getBalance() { return balance; }
+    public double getBalance() { return Database.getAccountBalance(getAccountName()); }
 
-    public synchronized void setBalance(int balance) throws InterruptedException {
+    public synchronized void setBalance(double balance) throws InterruptedException {
         Thread thisThread = Thread.currentThread();
         while (this.locked != thisThread.getId() && this.locked != 0) {
             System.out.println(thisThread.getId() + " is waiting for a lock on " + getAccountName());
@@ -51,7 +51,6 @@ public class Account {
     public synchronized void setLock(Thread thisThread) throws InterruptedException {
         wait(5000);
         this.locked = getLockStatus();
-        System.out.println(thisThread.getId() + " thinks that account " + getAccountName() + " has a locked status of " + this.locked);
         while (this.locked != 0) {
             System.out.println(thisThread.getId() + " is waiting for a lock on account " + getAccountName() + " currently locked by " + this.locked);
             wait();
@@ -63,7 +62,7 @@ public class Account {
 
     public synchronized void releaseLock() {
         System.out.println(this.locked + " has released a lock on account " + getAccountName());
-        this.locked = -1;
+        this.locked = 0;
         Database.update("UPDATE users SET 'locked'=" + this.locked + " WHERE name='" + this.accountName + "'");
         notifyAll();
     }

@@ -56,7 +56,7 @@ public class Action {
         String amount;
         try {
             amount = in.readLine();
-            int newBalance = account.getBalance() + parseInt(amount);
+            double newBalance = account.getBalance() + Double.parseDouble(amount);
             account.setBalance(newBalance);
             out.println(amount + " deposited to account " + account.getAccountName() + ". Your new balance is " + account.getBalance() + ".");
         } catch (IOException | InterruptedException e) {
@@ -67,10 +67,10 @@ public class Action {
 
     private void actionWithdraw() { // could be combined with actionDeposit
         out.println("How much would you like to withdraw? ");
-        int amount;
+        double amount;
         try {
-            amount = parseInt(in.readLine());
-            int newBalance = account.getBalance() - amount;
+            amount = Double.parseDouble(in.readLine());
+            double newBalance = account.getBalance() - amount;
             account.setBalance(newBalance);
             out.println(amount + " withdrawn from account " + account.getAccountName() + ". Your new balance is " + account.getBalance());
         } catch (IOException | InterruptedException e) {
@@ -106,15 +106,14 @@ public class Action {
         } while (!receiverAccountValid);
         do {
             out.println("Enter the amount you want to send to " + receiverAccountName + " (enter 0 to return to main menu): ");
-            int amountToSend = 0;
+            double amountToSend = 0;
             try {
-                amountToSend = parseInt(in.readLine());
+                amountToSend = Double.parseDouble(in.readLine());
                 if (senderAccount.getBalance() >= amountToSend && amountToSend > 0) {
                     amountToSendValid = true;
                     try {
-
-                        int newSenderBalance = senderAccount.getBalance() - amountToSend;
-                        int newReceiverBalance = receiverAccount.getBalance() + amountToSend;
+                        double newSenderBalance = senderAccount.getBalance() - amountToSend;
+                        double newReceiverBalance = receiverAccount.getBalance() + amountToSend;
                         Thread thisThread = Thread.currentThread();
                         senderAccount.setLock(thisThread);
                         receiverAccount.setLock(thisThread);

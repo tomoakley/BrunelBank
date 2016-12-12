@@ -44,6 +44,16 @@ public class Database {
         }
     }
 
+    public static double getAccountBalance(String accountName) {
+        try {
+            ResultSet rs = statement.executeQuery("SELECT balance FROM users WHERE name='" + accountName + "'");
+            return rs.getDouble("balance");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     public static Account getAccount(String accountName) {
         try {
             ResultSet rs = statement.executeQuery("SELECT * FROM users WHERE name='" + accountName + "'");
