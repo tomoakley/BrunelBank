@@ -31,7 +31,7 @@ public class Session {
         }
         com.tom.utils.account.addLoggedInAccount(this.account.getAccountName());
         this.out.println("Logging you in to account: " + this.account.getAccountName());
-        new Menu(account, socket);
+        new Menu(account.getAccountName(), socket);
     }
 
 }

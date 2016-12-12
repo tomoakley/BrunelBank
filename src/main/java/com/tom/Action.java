@@ -18,10 +18,8 @@ public class Action {
     private PrintWriter out;
     private BufferedReader in;
     private Account account;
-    private Socket socket;
 
     Action(int action, Socket socket, Account account) {
-        this.socket = socket;
         this.action = action;
         this.account = account;
         try {
@@ -49,6 +47,7 @@ public class Action {
             default:
                 System.out.println("That action doesn't exist");
         }
+        new Menu(account.getAccountName(), socket);
     }
 
     private void actionDeposit() {
@@ -62,7 +61,6 @@ public class Action {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        new Menu(account, socket);
     }
 
     private void actionWithdraw() { // could be combined with actionDeposit
@@ -76,7 +74,6 @@ public class Action {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        new Menu(account, socket);
     }
 
     private void actionTransfer() {
@@ -85,21 +82,21 @@ public class Action {
         Account senderAccount = account;
         String receiverAccountName;
         Account receiverAccount;
-        out.println("Your balance is " + account.getBalance() + ".");
+        out.println("Your balance is " + account.getBalance() + ".\n");
         do {
             out.println("Enter the account name you would like to send money to: ");
             try {
                 receiverAccountName = in.readLine();
                 receiverAccount = Database.getAccount(receiverAccountName);
                 if (receiverAccount == null) {
-                    out.println("The account " + receiverAccountName + " doesn't exist.");
+                    out.println("The account " + receiverAccountName + " doesn't exist.\n");
                 } else if (Objects.equals(receiverAccount.getAccountName(), senderAccount.getAccountName())) {
-                    out.println("You cannot send money to yourself");
+                    out.println("You cannot send money to yourself.\n");
                 } else {
                     receiverAccountValid = true;
                 }
             } catch (IOException e) {
-                out.println("Something went wrong. Returning to main account menu.");
+                out.println("Something went wrong. Returning to main account menu.\n");
                 e.printStackTrace();
                 return;
             }
@@ -126,24 +123,22 @@ public class Action {
                         e.printStackTrace();
                     }
                 } else if (amountToSend == 0) {
-                    new Menu(account, socket);
+                    return;
                 } else if (amountToSend < 0) {
-                    out.println("The amount to send must be bigger than 0."); // TODO these messages don't show up in the client console until the do loop has completed
+                    out.println("The amount to send must be bigger than 0.\n");
                 } else {
-                    out.println("Your account does not have enough balance to send that.");
+                    out.println("Your account does not have enough balance to send that.\n");
                 }
             } catch (IOException e) {
-                out.println("Something went wrong. Returning to main account menu.");
+                out.println("Something went wrong. Returning to main account menu.\n");
                 e.printStackTrace();
                 return;
             }
         } while(!amountToSendValid);
-        new Menu(account, socket); // TODO probably don't want to be sending account back to menu as it hasn't yet been updated
     }
 
     private void actionCheckBalance() {
         out.println("The balance of account " + account.getAccountName() + " is " + account.getBalance());
-        new Menu(account, socket);
     }
 
     private void actionLogout() {

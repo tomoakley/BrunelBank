@@ -24,9 +24,9 @@ public class Menu {
     private Socket socket;
     private Account account;
 
-    public Menu(Account account, Socket socket) {
+    public Menu(String accountName, Socket socket) {
         this.socket = socket;
-        this.account = account;
+        this.account = Database.getAccount(accountName);
         try {
             this.out = new PrintWriter(socket.getOutputStream(), true);
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
