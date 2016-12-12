@@ -4,8 +4,6 @@ import java.io.*;
 import java.net.Socket;
 import java.util.*;
 
-import com.tom.utils.account;
-
 /**
  * Created by Tom on 14/11/2016.
  */
@@ -15,6 +13,7 @@ public class BrunelBank extends Thread {
     private Socket socket = null;
     private PrintWriter out;
     private BufferedReader in;
+    private Account account;
 
     public BrunelBank(Socket socket) {
         super("BrunelBank");
@@ -44,13 +43,14 @@ public class BrunelBank extends Thread {
 
     private void checkIfAccountExists(String accountName) {
         Account targetAccount = Database.getAccount(accountName);
-        ArrayList<String> loggedInAccounts = account.getLoggedInAccounts();
+        ArrayList<String> activeSessions = Session.getActiveSessions();
         if (targetAccount == null) {
             accountExistsFalse(accountName);
-        } else if (loggedInAccounts.contains(accountName)) {
-            System.out.println(loggedInAccounts);
+        } else if (activeSessions.contains(accountName)) {
             login("That account is already logged in! Try another account: ");
+            out.println("hello! you can see me...");
         } else {
+            this.account = targetAccount;
             new Session(targetAccount, socket);
         }
     }

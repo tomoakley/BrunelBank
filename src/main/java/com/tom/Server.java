@@ -21,7 +21,8 @@ public class Server {
             System.exit(-1);
         }
 
-        Database database = new Database();
+        new Database();
+        System.out.println("SQLite3 database connected");
 
         while (listening) {
             new BrunelBank(serverSocket.accept()).start();

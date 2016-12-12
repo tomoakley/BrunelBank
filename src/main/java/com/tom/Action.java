@@ -31,15 +31,19 @@ public class Action {
         switch (this.action) {
             case 0:
                 actionTransfer();
+                new Menu(account.getAccountName(), socket);
                 break;
             case 1:
                 actionDeposit();
+                new Menu(account.getAccountName(), socket);
                 break;
             case 2:
                 actionWithdraw();
+                new Menu(account.getAccountName(), socket);
                 break;
             case 3:
                 actionCheckBalance();
+                new Menu(account.getAccountName(), socket);
                 break;
             case 4:
                 actionLogout();
@@ -47,7 +51,6 @@ public class Action {
             default:
                 System.out.println("That action doesn't exist");
         }
-        new Menu(account.getAccountName(), socket);
     }
 
     private void actionDeposit() {
@@ -143,8 +146,7 @@ public class Action {
 
     private void actionLogout() {
         out.println("Thanks for using the Brunel Bank. Goodbye!");
-        com.tom.utils.account.getLoggedInAccounts().remove(account.getAccountName());
-        System.exit(1);
+        Session.getActiveSessions().remove(account.getAccountName());
     }
 
 }
