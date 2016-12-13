@@ -17,7 +17,6 @@ public class Database {
                     "\t`id`\tINTEGER NOT NULL,\n" +
                     "\t`name`\tTEXT NOT NULL,\n" +
                     "\t`balance`\tNUMERIC NOT NULL,\n" +
-                    "\t`locked`\t,\n" +
                     "\tPRIMARY KEY(id)\n" +
                     ")";
             statement.executeUpdate(sql);
@@ -31,16 +30,6 @@ public class Database {
             statement.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
-
-    public static long getLockStatus(String accountName) {
-        try {
-            ResultSet rs = statement.executeQuery("SELECT locked FROM users WHERE name='" + accountName + "'");
-            return rs.getLong("locked");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return 0;
         }
     }
 
@@ -61,8 +50,7 @@ public class Database {
                 int id = rs.getInt("id");
                 String name = rs.getString("name");
                 int balance = rs.getInt("balance");
-                long locked = rs.getLong("locked");
-                return new Account(id, name, balance, locked);
+                return new Account(id, name, balance);
             }
         } catch (SQLException e) {
             e.printStackTrace();

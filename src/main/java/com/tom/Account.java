@@ -13,16 +13,14 @@ public class Account {
     Account(String accountName) {
         this.accountName = accountName;
         this.balance = 0;
-        this.locked = 0;
         Database.update(
-                "INSERT INTO users (name, balance, locked) VALUES ("
+                "INSERT INTO users (name, balance) VALUES ("
                 + "'" + this.accountName + "', "
-                + this.balance + ", "
-                + this.locked + ")"
+                + this.balance + ") "
         );
     }
 
-    Account(int id, String accountName, int balance, long locked) { // this is just for setting the Account details. Overloading ftw!
+    Account(int id, String accountName, int balance) {
         this.id = id;
         this.accountName = accountName;
         this.balance = balance;
@@ -32,38 +30,43 @@ public class Account {
         return accountName;
     }
 
-    public double getBalance() { return Database.getAccountBalance(getAccountName()); }
+    public synchronized double getBalance() {
+        if (LockState.tryLock(accountName)) {
+            return Database.getAccountBalance(getAccountName());
+        } else {
+            System.err.println("Lock not acquired for account " + getAccountName());
+            return 0;
+        }
+    }
 
-    public synchronized void setBalance(double balance) throws InterruptedException {
+    public void setBalance(double balance) {
+        if (LockState.tryLock(accountName)) {
+            this.balance = balance;
+            Database.update("UPDATE users SET 'balance'=" + this.balance + " WHERE name='" + this.accountName + "'");
+        } else {
+            System.err.println("Lock not acquired for account " + getAccountName());
+        }
+    }
+
+    public synchronized void lock() {
+        try {
+            Thread thisThread = Thread.currentThread();
+            while (!LockState.tryLock(getAccountName())) {
+                System.out.println(thisThread.getId() + " is waiting for a lock on account " + getAccountName());
+                wait();
+            }
+            if (LockState.tryLock(getAccountName())) {
+                System.out.println(thisThread.getId() + " got a lock on account " + getAccountName());
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void release() {
         Thread thisThread = Thread.currentThread();
-        while (this.locked != thisThread.getId() && this.locked != 0) {
-            System.out.println(thisThread.getId() + " is waiting for a lock on " + getAccountName());
-            wait();
-        }
-        this.balance = balance;
-        Database.update("UPDATE users SET 'balance'=" + this.balance + " WHERE name='" + this.accountName + "'");
-    }
-
-    public long getLockStatus() {
-        return Database.getLockStatus(getAccountName());
-    }
-
-    public synchronized void setLock(Thread thisThread) throws InterruptedException {
-        wait(5000);
-        this.locked = getLockStatus();
-        while (this.locked != 0) {
-            System.out.println(thisThread.getId() + " is waiting for a lock on account " + getAccountName() + " currently locked by " + this.locked);
-            wait();
-        }
-        this.locked = thisThread.getId();
-        Database.update("UPDATE users SET 'locked'=" + this.locked + " WHERE name='" + this.accountName + "'");
-        System.out.println(this.locked + " got a lock on account " + getAccountName());
-    }
-
-    public synchronized void releaseLock() {
-        System.out.println(this.locked + " has released a lock on account " + getAccountName());
-        this.locked = 0;
-        Database.update("UPDATE users SET 'locked'=" + this.locked + " WHERE name='" + this.accountName + "'");
+        LockState.unlock(accountName);
+        System.out.println(thisThread.getId() + " has released a lock on account " + getAccountName());
         notifyAll();
     }
 

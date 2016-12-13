@@ -11,7 +11,6 @@ public class Server {
     public static void main(String[] args) throws IOException {
 
         ServerSocket serverSocket = null;
-        boolean listening = true;
         int serverPort = 4444;
         try {
             serverSocket = new ServerSocket(serverPort);
@@ -24,11 +23,10 @@ public class Server {
         new Database();
         System.out.println("SQLite3 database connected");
 
-        while (listening) {
+        while (true) {
             new BrunelBank(serverSocket.accept()).start();
         }
 
-        serverSocket.close();
     }
 
 }

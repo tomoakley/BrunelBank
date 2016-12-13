@@ -13,7 +13,6 @@ public class BrunelBank extends Thread {
     private Socket socket = null;
     private PrintWriter out;
     private BufferedReader in;
-    private Account account;
 
     public BrunelBank(Socket socket) {
         super("BrunelBank");
@@ -48,9 +47,7 @@ public class BrunelBank extends Thread {
             accountExistsFalse(accountName);
         } else if (activeSessions.contains(accountName)) {
             login("That account is already logged in! Try another account: ");
-            out.println("hello! you can see me...");
         } else {
-            this.account = targetAccount;
             new Session(targetAccount, socket);
         }
     }
