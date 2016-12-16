@@ -54,12 +54,14 @@ public class Menu {
             out.println("Please choose an option: ");
             try {
                 chosenOption = parseInt(in.readLine());
-                if (chosenOption <= menuOptions.size()) {
+                if (chosenOption <= menuOptions.size() - 1) {
                     isOptionValid = true;
+                } else {
+                    out.println("You must choose a number between 0 and " + (menuOptions.size() - 1));
                 }
             } catch (NumberFormatException e) {
                 e.printStackTrace();
-                out.println("You must choose a number between 0 and " + menuOptions.size());
+                out.println("You must choose a number between 0 and " + (menuOptions.size() - 1));
                 isOptionValid = false;
             } catch (IOException e) {
                 e.printStackTrace();

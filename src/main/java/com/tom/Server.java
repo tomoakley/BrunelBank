@@ -2,6 +2,7 @@ package com.tom;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Date;
 
 /**
  * Created by Tom on 06/12/2016.
@@ -29,4 +30,11 @@ public class Server {
 
     }
 
+    public static void log(String message) {
+        long now = System.currentTimeMillis();
+        Date currentDate = new Date(now);
+        String timestamp = String.valueOf(currentDate);
+        Thread thread = Thread.currentThread();
+        System.out.println("[thread " + thread.getId() + "] " + timestamp + ": " + message);
+    }
 }

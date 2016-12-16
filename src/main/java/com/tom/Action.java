@@ -15,6 +15,7 @@ import static java.lang.Integer.parseInt;
 public class Action {
 
     int action;
+    private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
     private Account account;
@@ -22,6 +23,7 @@ public class Action {
     Action(int action, Socket socket, Account account) {
         this.action = action;
         this.account = account;
+        this.socket = socket;
         try {
             this.out = new PrintWriter(socket.getOutputStream(), true);
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -146,8 +148,12 @@ public class Action {
     }
 
     private void actionLogout() {
-        out.println("Thanks for using the Brunel Bank. Goodbye!");
+        out.println("Thanks for using the Brunel Bank. Goodbye!\n");
+        Server.log(account.getAccountName() + " logged out");
         Session.getActiveSessions().remove(account.getAccountName());
+        Server.log("Active sessions: " + Session.getActiveSessions());
+        account.logout();
+        new Login(socket, "Welcome to the Brunel Bank! Type your account name below to get started: ");
     }
 
 }

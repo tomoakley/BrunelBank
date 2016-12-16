@@ -5,10 +5,9 @@ package com.tom;
  */
 public class Account {
 
-    private int id;
+    private int id; // not actually needed but probably useful to keep here to remind me it exists
     private String accountName;
     private double balance;
-    private long locked = 0;
 
     Account(String accountName) {
         this.accountName = accountName;
@@ -18,6 +17,7 @@ public class Account {
                 + "'" + this.accountName + "', "
                 + this.balance + ") "
         );
+        Server.log(accountName + " created");
     }
 
     Account(int id, String accountName, int balance) {
@@ -34,7 +34,7 @@ public class Account {
         if (LockState.tryLock(accountName)) {
             return Database.getAccountBalance(getAccountName());
         } else {
-            System.err.println("Lock not acquired for account " + getAccountName());
+            Server.log("Lock not acquired for account " + getAccountName() + " before getting balance");
             return 0;
         }
     }
@@ -43,31 +43,34 @@ public class Account {
         if (LockState.tryLock(accountName)) {
             this.balance = balance;
             Database.update("UPDATE users SET 'balance'=" + this.balance + " WHERE name='" + this.accountName + "'");
+            Server.log(getAccountName() + " balance updated");
         } else {
-            System.err.println("Lock not acquired for account " + getAccountName());
+            Server.log("Lock not acquired for " + this.accountName + " before setting balance");
         }
     }
 
     public synchronized void lock() {
         try {
-            Thread thisThread = Thread.currentThread();
             while (!LockState.tryLock(getAccountName())) {
-                System.out.println(thisThread.getId() + " is waiting for a lock on account " + getAccountName());
+                Server.log("waiting for a lock on account " + getAccountName());
                 wait();
             }
-            if (LockState.tryLock(getAccountName())) {
-                System.out.println(thisThread.getId() + " got a lock on account " + getAccountName());
-            }
+            Server.log(getAccountName() + " locked");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     public synchronized void release() {
-        Thread thisThread = Thread.currentThread();
         LockState.unlock(accountName);
-        System.out.println(thisThread.getId() + " has released a lock on account " + getAccountName());
+        Server.log(getAccountName() + " lock released");
         notifyAll();
+    }
+
+    public void logout() {
+        this.balance = 0;
+        this.accountName = null;
+        this.id = 0;
     }
 
 }
