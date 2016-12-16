@@ -12,11 +12,7 @@ public class Account {
     Account(String accountName) {
         this.accountName = accountName;
         this.balance = 0;
-        Database.update(
-                "INSERT INTO users (name, balance) VALUES ("
-                + "'" + this.accountName + "', "
-                + this.balance + ") "
-        );
+        Database.createAccount(this.accountName, this.balance);
         Server.log(accountName + " created");
     }
 
@@ -32,9 +28,9 @@ public class Account {
 
     public synchronized double getBalance() {
         if (LockState.tryLock(accountName)) {
-            return Database.getAccountBalance(getAccountName());
+            return Database.getAccountBalance(accountName);
         } else {
-            Server.log("Lock not acquired for account " + getAccountName() + " before getting balance");
+            Server.log("Lock not acquired for account " + accountName + " before getting balance");
             return 0;
         }
     }
@@ -42,7 +38,7 @@ public class Account {
     public void setBalance(double balance) {
         if (LockState.tryLock(accountName)) {
             this.balance = balance;
-            Database.update("UPDATE users SET 'balance'=" + this.balance + " WHERE name='" + this.accountName + "'");
+            Database.setAccountBalance(accountName, this.balance);
             Server.log(getAccountName() + " balance updated");
         } else {
             Server.log("Lock not acquired for " + this.accountName + " before setting balance");
@@ -51,8 +47,8 @@ public class Account {
 
     public synchronized void lock() {
         try {
-            while (!LockState.tryLock(getAccountName())) {
-                Server.log("waiting for a lock on account " + getAccountName());
+            while (!LockState.tryLock(accountName)) {
+                Server.log("waiting for a lock on account " + accountName);
                 wait();
             }
             Server.log(getAccountName() + " locked");
@@ -63,7 +59,7 @@ public class Account {
 
     public synchronized void release() {
         LockState.unlock(accountName);
-        Server.log(getAccountName() + " lock released");
+        Server.log(accountName + " lock released");
         notifyAll();
     }
 

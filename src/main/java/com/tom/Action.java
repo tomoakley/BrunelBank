@@ -7,21 +7,17 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Objects;
 
-import static java.lang.Integer.parseInt;
-
 /**
  * Created by Tom on 05/12/2016.
  */
 public class Action {
 
-    int action;
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
     private Account account;
 
     Action(int action, Socket socket, Account account) {
-        this.action = action;
         this.account = account;
         this.socket = socket;
         try {
@@ -30,28 +26,27 @@ public class Action {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        switch (this.action) {
+        switch (action) {
             case 0:
                 actionTransfer();
-                new Menu(account.getAccountName(), socket);
                 break;
             case 1:
                 actionDeposit();
-                new Menu(account.getAccountName(), socket);
                 break;
             case 2:
                 actionWithdraw();
-                new Menu(account.getAccountName(), socket);
                 break;
             case 3:
                 actionCheckBalance();
-                new Menu(account.getAccountName(), socket);
                 break;
             case 4:
                 actionLogout();
                 break;
             default:
                 System.out.println("That action doesn't exist");
+        }
+        if (action != 4) {
+            new Menu(account.getAccountName(), socket);
         }
     }
 
